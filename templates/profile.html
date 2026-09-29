@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}@{{ profile_user.username }}'s Profile - MiniSocial{% endblock %}
+
+{% block content %}
+<!-- Profile Header Card -->
+<div class="card profile-card">
+    <div class="profile-header-center">
+        <div class="profile-avatar-wrapper">
+            {% if profile.avatar_url %}
+                <img src="{{ profile.avatar_url }}" alt="{{ profile_user.username }}" class="avatar avatar-lg">
+            {% else %}
+                <div class="avatar avatar-lg">
+                    <span class="avatar-initials">{{ profile_user.username|slice:":2"|upper }}</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <h1 class="profile-name">@{{ profile_user.username }}</h1>
+        <p class="post-time" style="margin-bottom: 0.75rem;">Member since {{ profile_user.date_joined|date:"F Y" }}</p>
+
+        {% if profile.bio %}
+            <p class="profile-bio">{{ profile.bio }}</p>
+        {% else %}
+            <p class="profile-bio" style="font-style: italic; color: var(--text-light);">No bio provided yet.</p>
+        {% endif %}
+
+        <!-- Followers / Following Stats -->
+        <div class="profile-stats">
+            <div class="stat-item">
+                <span class="stat-value">{{ posts.count }}</span>
+                <span class="stat-label">Posts</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="followers-count">{{ profile.followers_count }}</span>
+                <span class="stat-label">Followers</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="following-count">{{ profile.following_count }}</span>
+                <span class="stat-label">Following</span>
+            </div>
+        </div>
+
+        <!-- Action Button (Edit Profile if self, Follow/Unfollow if other user) -->
+        <div class="profile-actions">
+            {% if is_own_profile %}
+                <a href="{% url 'edit_profile' %}" class="btn btn-outline btn-sm">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                    Edit Profile
+                </a>
+            {% else %}
+                <button type="button" 
+                        class="btn btn-primary btn-sm follow-btn {% if is_following %}following{% endif %}" 
+                        data-username="{{ profile_user.username }}">
+                    {% if is_following %}Following{% else %}Follow{% endif %}
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- User Posts Section -->
+<div class="feed-header" style="margin-top: 2rem;">
+    <h2>Posts by {{ profile_user.username }}</h2>
+</div>
+
+<section class="posts-stream">
+    {% if posts %}
+        {% for post in posts %}
+            {% include 'includes/post_card.html' with post=post %}
+        {% endfor %}
+    {% else %}
+        <div class="card empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <h3>No posts yet</h3>
+            <p>{{ profile_user.username }} hasn't published any posts yet.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

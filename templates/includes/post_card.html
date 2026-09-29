@@ -1,0 +1,100 @@
+<article class="card post-card" id="post-{{ post.id }}">
+    <!-- Post Header -->
+    <header class="post-header">
+        <div class="post-author-info">
+            <a href="{% url 'user_profile' post.user.username %}">
+                {% if post.user.profile.avatar_url %}
+                    <img src="{{ post.user.profile.avatar_url }}" alt="{{ post.user.username }}" class="avatar avatar-md">
+                {% else %}
+                    <div class="avatar avatar-md">
+                        <span class="avatar-initials">{{ post.user.username|slice:":2"|upper }}</span>
+                    </div>
+                {% endif %}
+            </a>
+            <div class="author-names">
+                <a href="{% url 'user_profile' post.user.username %}" class="author-username">
+                    {{ post.user.username }}
+                </a>
+                <span class="post-time">{{ post.created_at|date:"M d, Y · H:i" }}</span>
+            </div>
+        </div>
+
+        {% if post.user == request.user %}
+            <button type="button" class="action-btn delete-action-btn post-delete-btn" data-post-id="{{ post.id }}" title="Delete post">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+            </button>
+        {% endif %}
+    </header>
+
+    <!-- Post Content -->
+    <div class="post-content">{{ post.content|linebreaksbr }}</div>
+
+    <!-- Post Actions (Likes, Comments) -->
+    <div class="post-actions">
+        <!-- Like Button -->
+        <button type="button" class="action-btn like-btn {% if post.user_has_liked %}liked{% endif %}" data-post-id="{{ post.id }}" title="Like">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span class="like-count">{{ post.likes_count }}</span>
+        </button>
+
+        <!-- Comment Toggle Button -->
+        <button type="button" class="action-btn comment-toggle-btn" data-post-id="{{ post.id }}" title="Comments">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span class="comment-count" data-post-id="{{ post.id }}">{{ post.comments_count }}</span>
+        </button>
+    </div>
+
+    <!-- Comments Container -->
+    <div class="comments-container" id="comments-{{ post.id }}">
+        <!-- Inline Comment Form -->
+        <form class="comment-input-form" data-post-id="{{ post.id }}">
+            <input type="text" class="comment-input" placeholder="Write a comment..." maxlength="1000" required>
+            <button type="submit" class="comment-submit-btn">Reply</button>
+        </form>
+
+        <!-- Comments List -->
+        <div class="comments-list" data-post-id="{{ post.id }}">
+            {% for comment in post.comments.all %}
+                <div class="comment-item" id="comment-{{ comment.id }}">
+                    <a href="{% url 'user_profile' comment.user.username %}">
+                        {% if comment.user.profile.avatar_url %}
+                            <img src="{{ comment.user.profile.avatar_url }}" alt="{{ comment.user.username }}" class="avatar avatar-sm">
+                        {% else %}
+                            <div class="avatar avatar-sm">
+                                <span class="avatar-initials">{{ comment.user.username|slice:":2"|upper }}</span>
+                            </div>
+                        {% endif %}
+                    </a>
+                    <div class="comment-bubble">
+                        <div class="comment-header">
+                            <div>
+                                <a href="{% url 'user_profile' comment.user.username %}" class="comment-author">
+                                    {{ comment.user.username }}
+                                </a>
+                                <span class="comment-date"> · {{ comment.created_at|date:"M d, Y, h:i A" }}</span>
+                            </div>
+                            {% if comment.user == request.user %}
+                                <button type="button" class="comment-delete-btn" data-comment-id="{{ comment.id }}" title="Delete comment">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>
+                            {% endif %}
+                        </div>
+                        <div class="comment-text">{{ comment.content }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</article>

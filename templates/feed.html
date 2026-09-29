@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Home / Feed - MiniSocial{% endblock %}
+
+{% block content %}
+<div class="feed-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+    <h1>Home Feed</h1>
+    <span style="font-size: 0.95rem; color: var(--text-muted);">
+        Logged in as <strong style="color: var(--primary);">@{{ request.user.username }}</strong>
+    </span>
+</div>
+
+<!-- Create Post Card -->
+<div class="card create-post-card">
+    <form action="{% url 'create_post' %}" method="post">
+        {% csrf_token %}
+        <div class="create-post-header">
+            {% if user.profile.avatar_url %}
+                <img src="{{ user.profile.avatar_url }}" alt="{{ user.username }}" class="avatar avatar-md">
+            {% else %}
+                <div class="avatar avatar-md">
+                    <span class="avatar-initials">{{ user.username|slice:":2"|upper }}</span>
+                </div>
+            {% endif %}
+            <div class="post-input-wrapper">
+                {{ post_form.content }}
+            </div>
+        </div>
+        <div class="create-post-footer">
+            <span id="post-char-count" class="char-counter">0/2000</span>
+            <button type="submit" class="btn btn-primary btn-sm">Post</button>
+        </div>
+    </form>
+</div>
+
+<!-- Posts Feed Stream -->
+<section class="posts-stream">
+    {% if posts %}
+        {% for post in posts %}
+            {% include 'includes/post_card.html' with post=post %}
+        {% endfor %}
+    {% else %}
+        <div class="card empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <h3>No posts yet</h3>
+            <p>Be the first to share an update with the community above!</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
